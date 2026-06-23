@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tutorial — Planilha de Tutoria PEI 2026</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0d1117;color:#f0f6fc;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+
+/* TOP BAR */
+.topbar{background:#161b22;padding:10px 20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #30363d;flex-shrink:0}
+.logo{width:32px;height:32px;background:linear-gradient(135deg,#1f6feb,#3fb950);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px}
+.topbar h1{font-size:13px;font-weight:600;color:#c9d1d9}
+.topbar .counter{margin-left:auto;font-size:12px;color:#8b949e;font-weight:500}
+
+/* PLAYER */
+.player{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.slide-area{flex:1;overflow:hidden;display:flex;align-items:center;justify-content:center;padding:24px 32px;background:#0d1117;position:relative}
+
+/* SLIDES */
+.slide{display:none;width:100%;max-width:920px;flex-direction:column;align-items:center;justify-content:center;gap:0;animation:fadeIn .35s ease}
+.slide.active{display:flex}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* CAPTION */
+.caption-area{background:#010409;border-top:2px solid #21262d;padding:14px 40px;min-height:70px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.caption-text{font-size:15px;line-height:1.65;color:#c9d1d9;text-align:center;max-width:820px;letter-spacing:.01em;transition:color .3s}
+.caption-text.lit{color:#f0f6fc}
+
+/* PROGRESS */
+.progress-wrap{height:3px;background:#21262d;flex-shrink:0}
+.progress-bar{height:100%;background:linear-gradient(90deg,#1f6feb,#3fb950);transition:width .4s ease}
+
+/* CONTROLS */
+.controls{background:#161b22;padding:12px 20px;display:flex;align-items:center;gap:10px;border-top:1px solid #30363d;flex-shrink:0}
+.btn{background:none;border:none;color:#8b949e;cursor:pointer;padding:7px 10px;border-radius:7px;font-size:18px;transition:all .2s;display:flex;align-items:center;justify-content:center;line-height:1}
+.btn:hover{background:#21262d;color:#f0f6fc}
+.btn:disabled{opacity:.3;cursor:default}
+.play-btn{background:linear-gradient(135deg,#1f6feb,#1158c7)!important;color:#fff!important;padding:9px 20px;font-size:13px;font-weight:600;gap:7px;border-radius:9px;letter-spacing:.02em}
+.play-btn:hover{background:linear-gradient(135deg,#388bfd,#1f6feb)!important}
+.play-btn.paused{background:linear-gradient(135deg,#da3633,#b91c1c)!important}
+
+.dots{display:flex;gap:5px;align-items:center;margin-left:auto}
+.dot{width:6px;height:6px;border-radius:3px;background:#30363d;cursor:pointer;transition:all .25s}
+.dot.active{background:#1f6feb;width:20px}
+
+.wave{display:flex;align-items:center;gap:3px;opacity:0;transition:opacity .3s;margin-left:6px}
+.wave.on{opacity:1}
+.wave span{display:inline-block;width:3px;border-radius:2px;background:#1f6feb;animation:wav 1s infinite ease-in-out}
+.wave span:nth-child(1){height:8px;animation-delay:0s}
+.wave span:nth-child(2){height:14px;animation-delay:.1s}
+.wave span:nth-child(3){height:18px;animation-delay:.2s}
+.wave span:nth-child(4){height:12px;animation-delay:.3s}
+.wave span:nth-child(5){height:7px;animation-delay:.4s}
+@keyframes wav{0%,100%{transform:scaleY(1)}50%{transform:scaleY(.4)}}
+
+/* INTRO */
+.intro{text-align:center;display:flex;flex-direction:column;align-items:center;gap:16px}
+.badge{display:inline-block;background:rgba(31,111,235,.12);border:1px solid rgba(31,111,235,.35);color:#79c0ff;padding:5px 14px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+.intro h2{font-size:40px;font-weight:800;line-height:1.2;background:linear-gradient(135deg,#f0f6fc 30%,#79c0ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.intro .sub{font-size:15px;color:#8b949e}
+.intro .school{font-size:13px;color:#6e7681;margin-top:-8px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:20px}
+.chip{background:#161b22;border:1px solid #30363d;padding:6px 13px;border-radius:8px;font-size:11px;color:#8b949e}
+
+/* COMPARISON */
+.comparison{display:grid;grid-template-columns:1fr 44px 1fr;gap:16px;width:100%;align-items:center}
+.cmp-col{background:#161b22;border-radius:12px;padding:20px}
+.cmp-col.before{border:1px solid #30363d;opacity:.7}
+.cmp-col.after{border:2px solid #3fb950}
+.cmp-col h3{font-size:11px;text-transform:uppercase;letter-spacing:.09em;font-weight:700;margin-bottom:14px}
+.cmp-col.before h3{color:#8b949e}
+.cmp-col.after h3{color:#3fb950}
+.cmp-col ul{list-style:none;display:flex;flex-direction:column;gap:7px}
+.cmp-col ul li{font-size:12px;color:#c9d1d9;display:flex;align-items:flex-start;gap:8px}
+.cmp-col ul li::before{content:'—';color:#484f58;flex-shrink:0}
+.cmp-col.after ul li::before{content:'✓';color:#3fb950;flex-shrink:0}
+.arrow-mid{font-size:28px;color:#1f6feb;text-align:center}
+
+/* TABS OVERVIEW */
+.tabs-list{display:flex;flex-direction:column;gap:7px;width:100%}
+.tab-row{background:#161b22;border:1px solid #30363d;border-radius:9px;padding:11px 16px;display:flex;align-items:center;gap:13px;transition:border-color .2s}
+.tab-row:hover{border-color:#1f6feb}
+.tab-row .ti{font-size:22px;flex-shrink:0}
+.tab-row .tinfo h4{font-size:13px;font-weight:700;color:#e6edf3;margin-bottom:1px}
+.tab-row .tinfo p{font-size:11px;color:#6e7681}
+.tab-row .twhen{margin-left:auto;font-size:10px;color:#1f6feb;background:rgba(31,111,235,.1);padding:3px 9px;border-radius:10px;white-space:nowrap;font-weight:600}
+
+/* SLIDE HEADER */
+.slide-header{width:100%;margin-bottom:18px;text-align:center}
+.slide-header .tab-pill{display:inline-flex;align-items:center;gap:6px;background:rgba(31,111,235,.1);border:1px solid rgba(31,111,235,.25);padding:4px 14px;border-radius:16px;font-size:11px;color:#79c0ff;font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px}
+.slide-header h2{font-size:24px;font-weight:700;color:#f0f6fc}
+.slide-header p{color:#6e7681;font-size:13px;margin-top:3px}
+
+/* TABLE MOCK */
+.tmock{width:100%;border-collapse:collapse;font-size:12px;border-radius:8px;overflow:hidden}
+.tmock th{background:#1c2128;color:#79c0ff;padding:8px 10px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;border-bottom:2px solid #1f6feb}
+.tmock td{padding:8px 10px;border-bottom:1px solid #21262d;color:#c9d1d9;background:#0d1117}
+.tmock tr:hover td{background:#161b22}
+.bg{background:rgba(63,185,80,.12);color:#56d364;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:600}
+.by{background:rgba(210,153,34,.12);color:#e3b341;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:600}
+.em{color:#484f58;font-style:italic}
+
+/* CRONOGRAMA */
+.crono-wrap{width:100%;overflow-x:auto}
+.crono{border-collapse:collapse;font-size:11px;width:100%;border-radius:8px;overflow:hidden}
+.crono th{background:#1c2128;color:#79c0ff;padding:7px 8px;text-align:center;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;border-bottom:2px solid #1f6feb}
+.crono th:first-child{text-align:left;min-width:130px}
+.crono td{padding:7px 8px;border-bottom:1px solid #21262d;color:#c9d1d9;background:#0d1117;text-align:center;font-size:10px}
+.crono td:first-child{text-align:left;font-size:11px;font-weight:500;color:#e6edf3}
+.crono tr:hover td{background:#161b22}
+.ck{color:#3fb950;font-size:10px;font-weight:600}
+.re{background:rgba(227,179,65,.1);color:#e3b341;padding:1px 5px;border-radius:3px;font-size:9px}
+.nok{color:#f85149;font-size:10px}
+.jul{background:rgba(31,111,235,.08);color:#388bfd;padding:1px 5px;border-radius:3px;font-size:9px}
+
+/* TUTORIA COLETIVA */
+.clt-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%}
+.clt-card{background:#161b22;border:1px solid #30363d;border-radius:9px;padding:13px}
+.clt-card h4{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.clt-card ul{list-style:none;display:flex;flex-direction:column;gap:4px}
+.clt-card ul li{font-size:11px;color:#8b949e;display:flex;align-items:flex-start;gap:6px}
+.clt-card ul li span{color:#484f58;flex-shrink:0}
+.link-field{background:#0d1117;border:1px solid #3fb950;border-radius:6px;padding:8px 12px;font-size:11px;color:#3fb950;margin-top:8px;display:flex;align-items:center;gap:8px}
+
+/* FICHAS */
+.blocks-row{display:flex;gap:8px;width:100%}
+.blk{flex:1;background:#161b22;border:1px solid #30363d;border-radius:9px;padding:12px;position:relative;overflow:hidden}
+.blk::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.blk.b1::before{background:#1f6feb}
+.blk.b2::before{background:#8957e5}
+.blk.b3::before{background:#3fb950}
+.blk.b4::before{background:#e3b341}
+.blk.b5::before{background:#f85149}
+.blk .bnum{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#484f58;margin-bottom:5px}
+.blk h4{font-size:11px;font-weight:700;color:#e6edf3;margin-bottom:7px;line-height:1.4}
+.blk ul{list-style:none;display:flex;flex-direction:column;gap:3px}
+.blk ul li{font-size:10px;color:#6e7681;padding:2px 0;border-bottom:1px solid #21262d}
+.blk ul li:last-child{border-bottom:none}
+.ctrlf{display:inline-flex;align-items:center;gap:5px;background:rgba(31,111,235,.08);border:1px solid rgba(31,111,235,.2);color:#79c0ff;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;margin-top:10px}
+kbd{background:#21262d;border:1px solid #30363d;border-radius:4px;padding:1px 5px;font-size:10px;font-family:monospace}
+
+/* MELHORIA */
+.mel-table{width:100%;border-collapse:collapse;font-size:11px;border-radius:8px;overflow:hidden}
+.mel-table th{background:#1c2128;color:#79c0ff;padding:8px 12px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.mel-table td{padding:8px 12px;border-bottom:1px solid #21262d;background:#0d1117;color:#c9d1d9}
+.mel-table tr:hover td{background:#161b22}
+.stars{color:#e3b341;letter-spacing:1px;font-size:12px}
+
+/* QUOTE */
+.quote-slide{text-align:center;max-width:680px;display:flex;flex-direction:column;align-items:center;gap:16px}
+.qmark{font-size:72px;color:#1f6feb;line-height:.7;opacity:.4;font-family:Georgia,serif}
+.qtext{font-size:20px;font-weight:500;line-height:1.65;color:#e6edf3;font-style:italic}
+.qattr{font-size:12px;color:#484f58}
+
+/* END */
+.end-slide{text-align:center;width:100%;max-width:720px;display:flex;flex-direction:column;align-items:center;gap:20px}
+.end-slide h2{font-size:32px;font-weight:800;background:linear-gradient(135deg,#3fb950,#1f6feb);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.end-slide p{color:#8b949e;font-size:14px;line-height:1.7;max-width:600px}
+.end-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;width:100%}
+.eg{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:12px 8px;text-align:center}
+.eg .ei{font-size:22px;margin-bottom:6px}
+.eg p{font-size:10px;color:#6e7681;line-height:1.4}
+
+/* TIP */
+.tip{background:rgba(63,185,80,.06);border-left:3px solid #3fb950;padding:9px 13px;border-radius:0 7px 7px 0;margin-top:12px;font-size:11px;color:#7ee787;display:flex;align-items:flex-start;gap:7px;width:100%}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">📋</div>
+  <h1>Tutorial — Planilha de Tutoria PEI 2026</h1>
+  <div class="wave" id="wave"><span></span><span></span><span></span><span></span><span></span></div>
+  <div class="counter" id="counter">Slide 1 de 10</div>
+</div>
+
+<div class="player">
+  <div class="slide-area">
+
+    <!-- SLIDE 1 -->
+    <div class="slide active" id="s0">
+      <div class="intro">
+        <div class="badge">E.E. José Roberto Friebolin — Guarulhos</div>
+        <h2>Planilha de Tutoria PEI<br>2026</h2>
+        <p class="sub">Versão Simplificada — Tutorial de Preenchimento</p>
+        <p class="school">Fundamental II e Ensino Médio · Maio de 2026</p>
+        <div class="chips">
+          <span class="chip">📋 Painel Geral</span>
+          <span class="chip">📅 Cronograma</span>
+          <span class="chip">👥 Tutoria Coletiva</span>
+          <span class="chip">👤 Fichas Individuais</span>
+          <span class="chip">📈 Plano de Melhoria</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 2 -->
+    <div class="slide" id="s1">
+      <div class="slide-header">
+        <div class="tab-pill">📌 Contexto</div>
+        <h2>Por que simplificar?</h2>
+        <p>Mesma qualidade, menos trabalho de preenchimento</p>
+      </div>
+      <div class="comparison">
+        <div class="cmp-col before">
+          <h3>Versão Anterior</h3>
+          <ul>
+            <li>33 abas individuais</li>
+            <li>Navegação complexa</li>
+            <li>Alto tempo de preenchimento</li>
+            <li>Baixa adesão dos tutores</li>
+            <li>Muitos campos redundantes</li>
+          </ul>
+        </div>
+        <div class="arrow-mid">→</div>
+        <div class="cmp-col after">
+          <h3>Versão 2026</h3>
+          <ul>
+            <li>7 abas temáticas</li>
+            <li>Navegação direta</li>
+            <li>Pré-preenchimento inteligente</li>
+            <li>Alinhado 100% ao DOS</li>
+            <li>Campos objetivos e claros</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 3 -->
+    <div class="slide" id="s2">
+      <div class="slide-header">
+        <div class="tab-pill">🗂️ Estrutura</div>
+        <h2>As 7 abas da planilha</h2>
+        <p>Cada aba tem seu momento certo de uso</p>
+      </div>
+      <div class="tabs-list">
+        <div class="tab-row"><span class="ti">📋</span><div class="tinfo"><h4>Painel Geral</h4><p>Visão rápida de todos os tutorados — sonho, ponto de atenção e combinado</p></div><span class="twhen">Antes de cada encontro</span></div>
+        <div class="tab-row"><span class="ti">📅</span><div class="tinfo"><h4>Cronograma</h4><p>Registro mensal dos encontros individuais por aluno</p></div><span class="twhen">Mensalmente</span></div>
+        <div class="tab-row"><span class="ti">👥</span><div class="tinfo"><h4>Tutoria Coletiva — Fund. II / EM</h4><p>Registro de cada encontro em grupo com pauta e evidências</p></div><span class="twhen">Após cada encontro coletivo</span></div>
+        <div class="tab-row"><span class="ti">👤</span><div class="tinfo"><h4>Fichas Individuais — Fund. II / EM</h4><p>Ficha completa com 5 blocos por aluno</p></div><span class="twhen">Progressivamente</span></div>
+        <div class="tab-row"><span class="ti">📈</span><div class="tinfo"><h4>Plano de Melhoria</h4><p>Autoavaliação bimestral do professor tutor</p></div><span class="twhen">Por bimestre</span></div>
+      </div>
+    </div>
+
+    <!-- SLIDE 4 -->
+    <div class="slide" id="s3">
+      <div class="slide-header">
+        <div class="tab-pill">📋 Aba 1</div>
+        <h2>Painel Geral</h2>
+        <p>Sua central de comando — consulte antes de cada encontro individual</p>
+      </div>
+      <table class="tmock">
+        <thead>
+          <tr><th>Nº</th><th>Nome do Aluno</th><th>Turma</th><th>Sonho Principal</th><th>Ponto de Atenção</th><th>Combinado Principal</th><th>Presença</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>Aline Alves Machado</td><td>6º B</td><td class="em">Médica</td><td class="em">Atenção em Matemática</td><td class="em">Estudar 30min por dia</td><td><span class="bg">✓ Regular</span></td></tr>
+          <tr><td>2</td><td>Alice Araújo Doria</td><td>6º C</td><td class="em">Engenheira</td><td class="em">—</td><td class="em">Participar mais das aulas</td><td><span class="bg">✓ Regular</span></td></tr>
+          <tr><td>3</td><td>Andressa da S. Soares</td><td>7º C</td><td class="em">Professora</td><td class="em">Faltas às 3ª e 4ª feira</td><td class="em">Conversar com responsável</td><td><span class="by">⚠ Atenção</span></td></tr>
+        </tbody>
+      </table>
+      <div class="tip">💡 Preencha apenas o que mudou desde o último encontro. O Painel não precisa ser completado de uma vez.</div>
+    </div>
+
+    <!-- SLIDE 5 -->
+    <div class="slide" id="s4">
+      <div class="slide-header">
+        <div class="tab-pill">📅 Aba 2</div>
+        <h2>Cronograma de Encontros</h2>
+        <p>O padrão "Realizado" já vem pré-marcado — altere só o que mudou</p>
+      </div>
+      <div class="crono-wrap">
+        <table class="crono">
+          <thead>
+            <tr><th>Nome do Aluno</th><th>Mar</th><th>Abr</th><th>Mai</th><th>Jun</th><th>Jul</th><th>Ago</th><th>Set</th><th>Out</th><th>Nov</th><th>Dez</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Aline Alves Machado</td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td><td><span class="jul">2 enc.</span></td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td><td><span class="jul">2 enc.</span></td></tr>
+            <tr><td>Alice Araújo Doria</td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td><td><span class="re">→ Reagend.</span></td><td><span class="ck">✓</span></td><td><span class="jul">2 enc.</span></td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td><td><span class="jul">2 enc.</span></td></tr>
+            <tr><td>Andressa da S. Soares</td><td><span class="ck">✓</span></td><td><span class="nok">✗ Faltou</span></td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td><td><span class="jul">2 enc.</span></td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td><td><span class="jul">2 enc.</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="tip">💡 Julho e Dezembro têm frequência reduzida — já indicado na planilha. Altere somente onde houve mudança.</div>
+    </div>
+
+    <!-- SLIDE 6 -->
+    <div class="slide" id="s5">
+      <div class="slide-header">
+        <div class="tab-pill">👥 Abas 3 e 4</div>
+        <h2>Tutoria Coletiva</h2>
+        <p>Fundamental II e Ensino Médio — um encontro por semana</p>
+      </div>
+      <div class="clt-grid">
+        <div class="clt-card">
+          <h4 style="color:#79c0ff">📅 Cabeçalho do Encontro</h4>
+          <ul>
+            <li><span>•</span> Data do encontro</li>
+            <li><span>•</span> Tema (calendário anual sugerido)</li>
+            <li><span>•</span> Pilar: Sonhos / Projeto de Vida / Excelência / Protagonismo</li>
+          </ul>
+          <div class="link-field">🔗 &nbsp;<div><strong>Pauta e evidências:</strong> cole aqui o link do documento de pauta, foto ou vídeo do encontro</div></div>
+        </div>
+        <div class="clt-card">
+          <h4 style="color:#3fb950">✅ Pontos Positivos</h4>
+          <ul>
+            <li><span>☑</span> Alunos engajados nas atividades</li>
+            <li><span>☑</span> Boa participação nas discussões</li>
+            <li><span>☑</span> Clima positivo e respeitoso</li>
+          </ul>
+        </div>
+        <div class="clt-card">
+          <h4 style="color:#e3b341">⚠ Pontos de Atenção</h4>
+          <ul>
+            <li><span>☐</span> Alunos dispersos ou desengajados</li>
+            <li><span>☐</span> Conflito entre alunos</li>
+            <li><span>☐</span> Baixa participação</li>
+            <li><span>☐</span> Dificuldade acadêmica evidente</li>
+          </ul>
+        </div>
+        <div class="clt-card">
+          <h4 style="color:#f78166">🎯 Ações Planejadas</h4>
+          <ul>
+            <li><span>☐</span> Conversar sobre Projeto de Vida</li>
+            <li><span>☐</span> Reforçar sonhos e metas</li>
+            <li><span>☐</span> Orientar sobre desempenho acadêmico</li>
+            <li><span>☐</span> Estimular protagonismo juvenil</li>
+            <li><span>☐</span> Articular com outros educadores</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 7 -->
+    <div class="slide" id="s6">
+      <div class="slide-header">
+        <div class="tab-pill">👤 Abas 5 e 6</div>
+        <h2>Fichas Individuais</h2>
+        <p>Cada aluno tem 5 blocos — preencha progressivamente</p>
+      </div>
+      <div class="blocks-row">
+        <div class="blk b1"><div class="bnum">Bloco 1</div><h4>Dados Básicos</h4><ul><li>Nome completo</li><li>Turma / Série</li><li>Contato</li><li>Responsável</li></ul></div>
+        <div class="blk b2"><div class="bnum">Bloco 2</div><h4>Sonho e Projeto de Vida</h4><ul><li>Sonho principal</li><li>Profissão de interesse</li><li>Motivações</li><li>Metas do ano</li></ul></div>
+        <div class="blk b3"><div class="bnum">Bloco 3</div><h4>Perfil Resumido</h4><ul><li>Pontos fortes</li><li>Pontos de atenção</li><li>Como aprende melhor</li><li>Observações gerais</li></ul></div>
+        <div class="blk b4"><div class="bnum">Bloco 4</div><h4>Plano do Tutorado</h4><ul><li>O que estou trabalhando</li><li>Combinado principal</li><li>Foco acadêmico atual</li></ul></div>
+        <div class="blk b5"><div class="bnum">Bloco 5</div><h4>Notas e Frequência</h4><ul><li>Notas por bimestre</li><li>Frequência %</li><li>Disciplinas críticas</li><li>Evolução geral</li></ul></div>
+      </div>
+      <div class="ctrlf"><kbd>Ctrl</kbd>+<kbd>F</kbd> &nbsp; Localize qualquer aluno pelo nome instantaneamente</div>
+    </div>
+
+    <!-- SLIDE 8 -->
+    <div class="slide" id="s7">
+      <div class="slide-header">
+        <div class="tab-pill">📈 Aba 7</div>
+        <h2>Plano de Melhoria Contínua</h2>
+        <p>Autoavaliação bimestral — o nível máximo já vem pré-marcado</p>
+      </div>
+      <table class="mel-table">
+        <thead><tr><th>#</th><th>Atitude como Tutor</th><th>1º BIM</th><th>2º BIM</th><th>3º BIM</th><th>4º BIM</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Atingir meta de encontros individuais (mín. 1x/mês)</td><td><span class="stars">★★★★</span></td><td><span class="stars">★★★★</span></td><td><span class="stars">★★★★</span></td><td><span class="stars">★★★★</span></td></tr>
+          <tr><td>2</td><td>Atingir meta de encontros coletivos semanais</td><td><span class="stars">★★★★</span></td><td><span class="stars">★★★★</span></td><td><span class="stars">★★★★</span></td><td><span class="stars">★★★★</span></td></tr>
+          <tr><td>3</td><td>Acolher tutorados: chamar pelo nome, bom dia</td><td><span class="stars">★★★★</span></td><td><span class="stars">★★★★</span></td><td><span class="stars">★★★★</span></td><td><span class="stars">★★★★</span></td></tr>
+          <tr><td>4</td><td>Compartilhar sonhos e Projeto de Vida</td><td><span class="stars">★★★★</span></td><td><span class="stars">★★★★</span></td><td><span class="stars">★★★★</span></td><td><span class="stars">★★★★</span></td></tr>
+          <tr><td>5</td><td>Registrar e acompanhar combinados</td><td><span class="stars">★★★★</span></td><td><span class="stars">★★★★</span></td><td><span class="stars">★★★★</span></td><td><span class="stars">★★★★</span></td></tr>
+        </tbody>
+      </table>
+      <div class="tip">💡 Escala: 1 — Raramente · 2 — Às vezes · 3 — Frequentemente · 4 — Sempre. Avalie com honestidade ao final de cada bimestre.</div>
+    </div>
+
+    <!-- SLIDE 9 -->
+    <div class="slide" id="s8">
+      <div class="quote-slide">
+        <div class="qmark">"</div>
+        <p class="qtext">Um sistema bem preenchido, mesmo que simples, é mais eficaz do que um sistema completo que não é utilizado.</p>
+        <p class="qattr">Nota de Apresentação — Sistema de Tutoria PEI 2026<br>E.E. José Roberto Friebolin · Carlos Augusto Souza</p>
+      </div>
+    </div>
+
+    <!-- SLIDE 10 -->
+    <div class="slide" id="s9">
+      <div class="end-slide">
+        <h2>Pronto para tutorar!</h2>
+        <p>Consulte o Painel Geral antes dos encontros. Registre o Cronograma mensalmente. Preencha as Fichas progressivamente. Avalie-se a cada bimestre. Bom trabalho!</p>
+        <div class="end-grid">
+          <div class="eg"><div class="ei">📋</div><p>Painel Geral<br>Antes dos encontros</p></div>
+          <div class="eg"><div class="ei">📅</div><p>Cronograma<br>Mensalmente</p></div>
+          <div class="eg"><div class="ei">👥</div><p>Tutoria Coletiva<br>Após o encontro</p></div>
+          <div class="eg"><div class="ei">👤</div><p>Fichas Individuais<br>Progressivamente</p></div>
+          <div class="eg" style="grid-column:1/-1"><div class="ei">📈</div><p>Plano de Melhoria — Autoavaliação a cada bimestre</p></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="caption-area">
+    <div class="caption-text" id="caption">Pressione ▶ para iniciar o tutorial com narração em voz</div>
+  </div>
+  <div class="progress-wrap"><div class="progress-bar" id="progress" style="width:10%"></div></div>
+  <div class="controls">
+    <button class="btn" id="btnPrev" onclick="prevSlide()" title="Anterior">◀</button>
+    <button class="btn play-btn" id="btnPlay" onclick="togglePlay()">▶ &nbsp;Iniciar</button>
+    <button class="btn" id="btnNext" onclick="nextSlide()" title="Próximo">▶</button>
+    <div class="dots" id="dots"></div>
+  </div>
+</div>
+
+<script>
+const SLIDES=[
+  {caption:"Bem-vindo ao tutorial da Planilha de Tutoria PEI 2026. Uma ferramenta criada para tornar o registro da tutoria mais prático, acessível e consistente ao longo do ano.",narration:"Bem-vindo ao tutorial da Planilha de Tutoria PEI — versão simplificada de dois mil e vinte e seis, da E.E. José Roberto Friebolin. Esta ferramenta foi criada para tornar o registro da tutoria mais prático, acessível e consistente. Vamos conhecer cada aba juntos!"},
+  {caption:"A versão anterior tinha 33 abas individuais. A nova versão 2026 organiza tudo em 7 abas temáticas, mantendo o alinhamento com o Documento Orientador Sintético. Menos cliques, mais tutoria.",narration:"A versão anterior do sistema tinha trinta e três abas individuais. Funcional, mas trabalhosa. A nova versão simplificada organiza tudo em apenas sete abas temáticas, mantendo o alinhamento integral com o Documento Orientador Sintético do Programa Ensino Integral. O resultado: menos tempo preenchendo, mais tempo tutorando."},
+  {caption:"A planilha tem 7 abas — cada uma com seu momento certo: Painel Geral, Cronograma, Tutoria Coletiva, Fichas Individuais e Plano de Melhoria.",narration:"A planilha tem sete abas, cada uma com um papel específico. O Painel Geral para consulta rápida antes dos encontros. O Cronograma para registro mensal. Duas abas de Tutoria Coletiva, uma para o Fundamental II e outra para o Ensino Médio. Duas abas de Fichas Individuais. E o Plano de Melhoria Contínua para autoavaliação a cada bimestre."},
+  {caption:"O Painel Geral é sua central de comando. Consulte antes de cada encontro individual. Registre o sonho, o ponto de atenção e o combinado de cada tutorado — só o que mudou.",narration:"O Painel Geral é a primeira aba e funciona como sua central de comando. Antes de cada encontro individual, consulte esta aba. Aqui você vê, em uma linha só, o sonho principal de cada tutorado, o ponto de atenção mais recente e o combinado feito no último encontro. Atualize somente o que mudou."},
+  {caption:"No Cronograma, acompanhe mês a mês cada encontro individual. O padrão já vem como Realizado. Altere apenas onde houve mudança: Reagendado ou Faltou.",narration:"No Cronograma, você acompanha mês a mês a situação de cada encontro individual. O padrão já vem como Realizado — o cenário positivo. Altere apenas onde houve mudança: use Reagendado ou Faltou quando necessário. Julho e Dezembro têm frequência reduzida, já indicada na planilha."},
+  {caption:"As Tutorias Coletivas registram os encontros em grupo. Preencha data, tema, pontos positivos, pontos de atenção e ações. Cole o link da pauta e das evidências — foto, vídeo ou documento.",narration:"As abas de Tutoria Coletiva registram os encontros em grupo — uma para o Fundamental II e outra para o Ensino Médio. Cada encontro tem data, tema sugerido, pontos positivos já pré-marcados, pontos de atenção e ações planejadas. Há também um campo para colar o link da pauta e das evidências do encontro — uma foto, um vídeo ou um documento compartilhado. Os temas seguem os quatro pilares do DOS: Sonhos, Projeto de Vida, Excelência Acadêmica e Protagonismo Juvenil."},
+  {caption:"Nas Fichas Individuais, cada aluno tem 5 blocos: Dados Básicos, Sonho e Projeto de Vida, Perfil Resumido, Plano do Tutorado e Notas e Frequência. Use Ctrl+F para localizar o aluno.",narration:"Nas Fichas Individuais, cada aluno tem seu próprio espaço organizado em cinco blocos. Bloco um: dados básicos. Bloco dois: sonho e projeto de vida. Bloco três: perfil resumido. Bloco quatro: plano do tutorado, com apenas três campos objetivos. E bloco cinco: notas e frequência bimestrais. Use Control mais F para localizar o aluno pelo nome rapidamente."},
+  {caption:"O Plano de Melhoria é sua autoavaliação bimestral como tutor. Cinco atitudes essenciais, avaliadas de 1 a 4. O nível máximo já vem pré-marcado — revise ao final de cada bimestre.",narration:"O Plano de Melhoria Contínua é a sua autoavaliação bimestral como tutor. Oito atitudes essenciais, avaliadas em quatro níveis: de raramente até sempre. O nível máximo já vem pré-marcado para agilizar. Ao final de cada bimestre, revise com honestidade e ajuste conforme sua prática real."},
+  {caption:"\"Um sistema bem preenchido, mesmo que simples, é mais eficaz do que um sistema completo que não é utilizado.\" Este é o princípio que guia toda esta planilha.",narration:"Há um princípio que orienta toda esta planilha. Um sistema bem preenchido, mesmo que simples, é mais eficaz do que um sistema completo que não é utilizado. Por isso, preencha progressivamente. Não precisa ser tudo de uma vez. O importante é manter o registro consistente ao longo do ano letivo."},
+  {caption:"Pronto! Consulte o Painel antes dos encontros. Registre o Cronograma mensalmente. Preencha as Fichas progressivamente. Autoavalie-se a cada bimestre. Bom trabalho, tutor!",narration:"Pronto! Você já conhece toda a Planilha de Tutoria PEI dois mil e vinte e seis. Consulte o Painel Geral antes dos encontros. Registre o Cronograma mensalmente. Preencha as Tutorias Coletivas após cada encontro, incluindo o link das evidências. Atualize as Fichas progressivamente. E faça sua autoavaliação a cada bimestre. Bom trabalho, tutor! Seus alunos contam com você."}
+];
+
+let cur=0,playing=false,utterance=null,advanceTimer=null;
+
+const dotsEl=document.getElementById('dots');
+SLIDES.forEach((_,i)=>{const d=document.createElement('div');d.className='dot'+(i===0?' active':'');d.onclick=()=>{if(playing){cancelSpeech();goTo(i);speakCurrent();}else goTo(i);};dotsEl.appendChild(d);});
+
+function goTo(idx){
+  document.getElementById('s'+cur).classList.remove('active');
+  cur=idx;
+  document.getElementById('s'+cur).classList.add('active');
+  document.getElementById('caption').textContent=SLIDES[cur].caption;
+  document.getElementById('counter').textContent='Slide '+(cur+1)+' de '+SLIDES.length;
+  document.getElementById('progress').style.width=((cur+1)/SLIDES.length*100)+'%';
+  document.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('active',i===cur));
+  document.getElementById('btnPrev').disabled=cur===0;
+  document.getElementById('btnNext').disabled=cur===SLIDES.length-1;
+}
+
+function getVoice(){const v=speechSynthesis.getVoices();return v.find(x=>x.lang==='pt-BR')||v.find(x=>x.lang.startsWith('pt'))||null;}
+
+function cancelSpeech(){if(advanceTimer){clearTimeout(advanceTimer);advanceTimer=null;}speechSynthesis.cancel();utterance=null;}
+
+function speakCurrent(){
+  cancelSpeech();
+  document.getElementById('wave').classList.add('on');
+  document.getElementById('caption').classList.add('lit');
+  utterance=new SpeechSynthesisUtterance(SLIDES[cur].narration);
+  utterance.lang='pt-BR';utterance.rate=0.88;utterance.pitch=1.05;
+  const v=getVoice();if(v)utterance.voice=v;
+  utterance.onend=()=>{
+    document.getElementById('wave').classList.remove('on');
+    document.getElementById('caption').classList.remove('lit');
+    if(playing){
+      if(cur<SLIDES.length-1){advanceTimer=setTimeout(()=>{goTo(cur+1);speakCurrent();},1200);}
+      else stopPlay();
+    }
+  };
+  utterance.onerror=()=>{document.getElementById('wave').classList.remove('on');document.getElementById('caption').classList.remove('lit');};
+  speechSynthesis.speak(utterance);
+}
+
+function togglePlay(){if(playing)stopPlay();else startPlay();}
+
+function startPlay(){
+  playing=true;
+  const b=document.getElementById('btnPlay');
+  b.innerHTML='⏸ &nbsp;Pausar';b.classList.add('paused');
+  speakCurrent();
+}
+
+function stopPlay(){
+  playing=false;cancelSpeech();
+  document.getElementById('wave').classList.remove('on');
+  document.getElementById('caption').classList.remove('lit');
+  const b=document.getElementById('btnPlay');
+  b.innerHTML='▶ &nbsp;Continuar';b.classList.remove('paused');
+}
+
+function prevSlide(){if(cur>0){cancelSpeech();if(playing){goTo(cur-1);speakCurrent();}else goTo(cur-1);}}
+function nextSlide(){if(cur<SLIDES.length-1){cancelSpeech();if(playing){goTo(cur+1);speakCurrent();}else goTo(cur+1);}}
+
+goTo(0);
+document.getElementById('btnPrev').disabled=true;
+speechSynthesis.onvoiceschanged=()=>{};
+</script>
+</body>
+</html>
